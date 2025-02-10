@@ -34,7 +34,7 @@ jobs:
           export LATEST_APP=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
           git clone -b $LATEST_APP https://github.com/usememos/memos
           corepack enable
-          npm install -g pnpm
+          npm install -g pnpm --force
 
       - name: Build Frontend
         run: |
