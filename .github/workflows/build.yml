@@ -35,7 +35,9 @@ jobs:
 
       - name: Generate release tag
         id: tag
-        run: echo "release_tag=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print \"v\"$5;exit}')" >> $GITHUB_OUTPUT
+        run: |
+          release_tag=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
+          echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@v2
