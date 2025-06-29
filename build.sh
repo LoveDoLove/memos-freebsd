@@ -21,4 +21,4 @@ ldflags="\
 export CGO_ENABLED=1
 export CC="clang --target=x86_64-unknown-freebsd14.1 --sysroot=/opt/freebsd"
 export GOOS=freebsd
-go build -ldflags="$ldflags" -tags=jsoniter .
+go build -ldflags="$ldflags" -tags=jsoniter -o memos ./bin/memos
