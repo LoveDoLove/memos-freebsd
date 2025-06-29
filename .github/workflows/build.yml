@@ -1,4 +1,4 @@
-name: Build Memos
+name: Build Memos for FreeBSD (All Architectures)
 
 on:
   workflow_dispatch:
@@ -11,7 +11,30 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build
+    name: Build Memos FreeBSD (${{ matrix.goarch }})
+    strategy:
+      matrix:
+        include:
+          - goos: freebsd
+            goarch: amd64
+            suffix: freebsd-amd64
+            cc: "clang --target=x86_64-unknown-freebsd14.1 --sysroot=/opt/freebsd"
+          - goos: freebsd
+            goarch: arm64
+            suffix: freebsd-arm64
+            cc: "clang --target=aarch64-unknown-freebsd14.1 --sysroot=/opt/freebsd"
+          - goos: freebsd
+            goarch: 386
+            suffix: freebsd-386
+            cc: "clang --target=i386-unknown-freebsd14.1 --sysroot=/opt/freebsd"
+          - goos: freebsd
+            goarch: arm
+            suffix: freebsd-arm
+            cc: "clang --target=arm-unknown-freebsd14.1 --sysroot=/opt/freebsd"
+          - goos: freebsd
+            goarch: riscv64
+            suffix: freebsd-riscv64
+            cc: "clang --target=riscv64-unknown-freebsd14.1 --sysroot=/opt/freebsd"
     steps:
       - uses: actions/checkout@v4
 
@@ -27,44 +50,32 @@ jobs:
           node-version: 20
 
       - name: Install Corepack
-        run: npm install -g corepack
+        run: |
+          npm install -g corepack
+          corepack enable
 
-      - name: Clone Repo
+      - name: Setup FreeBSD base (FreeBSD only)
+        if: matrix.goos == 'freebsd'
+        run: |
+          wget -q https://download.freebsd.org/releases/amd64/14.3-RELEASE/base.txz
+          sudo mkdir /opt/freebsd && sudo tar -xf ./base.txz -C /opt/freebsd
+
+      - name: Build Memos
         run: |
           export LATEST_APP=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
           git clone -b $LATEST_APP https://github.com/usememos/memos
-          corepack enable
-          npm install -g pnpm --force
-
-      - name: Build Frontend
-        run: |
-          cd memos/web
-          corepack enable && pnpm i --frozen-lockfile
-          pnpm build
-          mkdir -p ../artifact
+          cd memos/web && pnpm i --frozen-lockfile && pnpm build
           rm -rf ../server/router/frontend/dist
           mkdir -p ../server/router/frontend
           cp -R dist ../server/router/frontend/dist
-          cd ../..
-
-      - name: Build binary
-        run: |
-          cd memos
-          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos.exe && cd artifact && tar -czvf ../memos-windows-amd64.tar.gz * && cd ..
-          GOOS=freebsd GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos && cd artifact && tar -czvf ../memos-freebsd-amd64.tar.gz * && cd ..
-          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos && cd artifact && tar -czvf ../memos-darwin-amd64.tar.gz * && cd ..
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos && cd artifact && tar -czvf ../memos-linux-amd64.tar.gz * && cd ..
-          cd ..
+          cd .. && bash ../build.sh ${{ matrix.goos }} ${{ matrix.goarch }} ${{ matrix.suffix }} "${{ matrix.cc }}"
 
       # - name: Upload artifact
       #   uses: actions/upload-artifact@main
       #   with:
-      #     name: memos-pre-built
+      #     name: memos-freebsd
       #     path: |
-      #       memos/memos-windows-amd64.tar.gz
-      #       memos/memos-freebsd-amd64.tar.gz
-      #       memos/memos-darwin-amd64.tar.gz
-      #       memos/memos-linux-amd64.tar.gz
+      #       memos/memos
 
       - name: Generate release tag
         id: tag
@@ -74,9 +85,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            memos/memos-windows-amd64.tar.gz
-            memos/memos-freebsd-amd64.tar.gz
-            memos/memos-darwin-amd64.tar.gz
-            memos/memos-linux-amd64.tar.gz
+            memos/memos-*
           token: ${{ github.token }}
           tag_name: ${{ steps.tag.outputs.release_tag }}
