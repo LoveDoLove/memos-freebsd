@@ -1,134 +1,132 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
+<!-- PROJECT SHIELDS -->
+[![Build Status](https://github.com/LoveDoLove/memos-freebsd/actions/workflows/build.yml/badge.svg)](https://github.com/LoveDoLove/memos-freebsd/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+<!-- PROJECT LOGO -->
 <br />
 <div align="center">
+  <a href="https://github.com/LoveDoLove/memos-freebsd">
+    <img src="images/icon.png" alt="memos-freebsd Logo" width="120" />
+  </a>
   <h3 align="center">memos-freebsd</h3>
   <p align="center">
-    FreeBSD build automation and workflow for the Memos project
+    Automated FreeBSD build pipeline for the <a href="https://github.com/usememos/memos">Memos</a> project.
     <br />
-    <a href="#about-the-project"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="#usage">View Usage</a>
-    &middot;
-    <a href="#contributing">Contribute</a>
-    &middot;
-    <a href="#issues">Report Bug</a>
-    &middot;
-    <a href="#feature-request">Request Feature</a>
+    <a href="https://github.com/LoveDoLove/memos-freebsd/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/LoveDoLove/memos-freebsd/issues">Request Feature</a>
   </p>
 </div>
 
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#getting-started">Getting Started</a></li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+## Table of Contents
+- [About The Project](#about-the-project)
+- [Built With](#built-with)
+- [Getting Started](#getting-started)
+- [Features](#features)
+- [Usage](#usage)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## About The Project
 
-This repository provides FreeBSD-specific build automation and workflow files for the [Memos](https://github.com/usememos/memos) project. It includes GitHub Actions workflows for building, cleaning up workflow runs, and managing CI/CD for Memos on FreeBSD environments.
+This repository provides an automated build pipeline to generate FreeBSD binaries for the [Memos](https://github.com/usememos/memos) open-source note-taking application. It leverages GitHub Actions and a custom `build.sh` script to cross-compile the latest Memos release for FreeBSD, making it easy for FreeBSD users to deploy and run Memos natively.
 
-### Built With
+- **Automated builds**: Nightly and manual builds via GitHub Actions
+- **Cross-compilation**: Uses a FreeBSD sysroot and Clang for accurate builds
+- **Release artifacts**: Pre-built FreeBSD binaries are published with each release
 
-* [GitHub Actions](https://github.com/features/actions)
-* [Go](https://golang.org/)
-* [Node.js](https://nodejs.org/)
-* [pnpm](https://pnpm.io/)
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Built With
+
+- [Go](https://golang.org/) (cross-compilation)
+- [FreeBSD](https://www.freebsd.org/) (target platform)
+- [GitHub Actions](https://github.com/features/actions) (CI/CD)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Getting Started
 
-To get a local copy up and running, follow these steps.
+To build or use the FreeBSD binary for Memos:
 
 ### Prerequisites
-
-- FreeBSD or compatible Unix-like environment
-- [Go](https://golang.org/) (latest stable)
-- [Node.js](https://nodejs.org/) (v20 or later)
-- [pnpm](https://pnpm.io/) (installed globally)
+- [Go](https://golang.org/dl/) (for local builds)
+- [Clang](https://clang.llvm.org/) with FreeBSD target support
+- FreeBSD sysroot (see workflow for details)
+- Git
 
 ### Installation
-
-1. Clone the repo
+1. **Clone the repository**
    ```sh
    git clone https://github.com/LoveDoLove/memos-freebsd.git
    cd memos-freebsd
    ```
-2. Review and customize the GitHub Actions workflows in `.github/workflows/` as needed.
-3. (Optional) Set up funding links in `.github/FUNDING.yml`.
+2. **(Optional) Build locally**
+   - Download the FreeBSD base sysroot and extract to `/opt/freebsd` (see `.github/workflows/build.yml` for details)
+   - Run the build script:
+     ```sh
+     bash build.sh
+     ```
+3. **Download pre-built binaries**
+   - Visit the [Releases](https://github.com/LoveDoLove/memos-freebsd/releases) page for the latest FreeBSD binary.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Features
+- Automated nightly and manual builds for FreeBSD
+- Cross-compilation using official FreeBSD sysroot
+- Release tagging and artifact publishing
+- Clean and maintainable GitHub Actions workflows
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Usage
 
-- The `build.yml` workflow automates building the Memos project for FreeBSD.
-- Use the `cleanup_all_actions.yml` and `cleanup_failed_actions.yml` to manage workflow run history and keep your CI clean.
-- Issue templates for bug reports and feature requests are available in `.github/ISSUE_TEMPLATE/`.
+Download the latest FreeBSD binary from the [Releases](https://github.com/LoveDoLove/memos-freebsd/releases) page and run it on your FreeBSD system:
+
+```sh
+./memos
+```
+
+For more information, see the [Memos documentation](https://github.com/usememos/memos#readme).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Roadmap
+- [ ] Support additional FreeBSD versions
+- [ ] Add automated tests for build artifacts
+- [ ] Improve documentation and usage examples
 
-- [x] FreeBSD build automation for Memos
-- [x] Workflow cleanup automation
-- [ ] Add more FreeBSD-specific CI/CD features
-- [ ] Documentation improvements
+See the [open issues](https://github.com/LoveDoLove/memos-freebsd/issues) for a full list of proposed features and known issues.
 
-See the [issues](https://github.com/LoveDoLove/memos-freebsd/issues) for a full list of proposed features (and known issues).
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are welcome! Please open an issue or submit a pull request for improvements or new features.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a pull request
 
-See `.github/ISSUE_TEMPLATE/` for bug and feature request templates.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
 
-## Contact
-
-LoveDoLove - [GitHub](https://github.com/LoveDoLove)
-
-Project Link: [https://github.com/LoveDoLove/memos-freebsd](https://github.com/LoveDoLove/memos-freebsd)
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Acknowledgments
+- [Memos](https://github.com/usememos/memos) - Original project
+- [FreeBSD](https://www.freebsd.org/)
+- [GitHub Actions](https://github.com/features/actions)
 
-* [Memos Project](https://github.com/usememos/memos)
-* [GitHub Actions](https://github.com/features/actions)
-* [Choose an Open Source License](https://choosealicense.com)
-* [Img Shields](https://shields.io)
-* [Font Awesome](https://fontawesome.com)
-
-## Sponsorship
-
-This project is proudly supported by [ZMTO](https://www.zmto.com) as part of their open-source VPS program. We extend our sincere gratitude to ZMTO for their valuable resources and commitment to empowering open-source innovation.
-
-<!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/LoveDoLove/memos-freebsd.svg?style=for-the-badge
-[contributors-url]: https://github.com/LoveDoLove/memos-freebsd/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/LoveDoLove/memos-freebsd.svg?style=for-the-badge
-[forks-url]: https://github.com/LoveDoLove/memos-freebsd/network/members
-[stars-shield]: https://img.shields.io/github/stars/LoveDoLove/memos-freebsd.svg?style=for-the-badge
-[stars-url]: https://github.com/LoveDoLove/memos-freebsd/stargazers
-[issues-shield]: https://img.shields.io/github/issues/LoveDoLove/memos-freebsd.svg?style=for-the-badge
-[issues-url]: https://github.com/LoveDoLove/memos-freebsd/issues
-[license-shield]: https://img.shields.io/github/license/LoveDoLove/memos-freebsd.svg?style=for-the-badge
-[license-url]: https://github.com/LoveDoLove/memos-freebsd/blob/main/LICENSE
+<p align="right">(<a href="#readme-top">back to top</a>)</p>

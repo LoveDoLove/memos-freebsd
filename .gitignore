@@ -405,4 +405,4 @@ Output
 install_rooflow.cmd
 generate_mcp_yaml.py
 .vscode
-README_TEMPLATES.md
+BLANK_README.md
