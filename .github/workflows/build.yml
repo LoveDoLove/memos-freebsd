@@ -9,74 +9,40 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    name: Build
+    name: Build Memos
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "stable"
-          check-latest: true
+      - name: Setup FreeBSD base
+        run: |
+          wget -q https://download.freebsd.org/releases/amd64/14.3-RELEASE/base.txz
+          sudo mkdir /opt/freebsd && sudo tar -xf ./base.txz -C /opt/freebsd
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Corepack
-        run: npm install -g corepack
-
-      - name: Clone Repo
+      - name: Build Memos
         run: |
           export LATEST_APP=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
           git clone -b $LATEST_APP https://github.com/usememos/memos
-          corepack enable
-          npm install -g pnpm --force
-
-      - name: Build Frontend
-        run: |
-          cd memos/web
-          corepack enable && pnpm i --frozen-lockfile
-          pnpm build
-          mkdir -p ../artifact
-          rm -rf ../server/router/frontend/dist
-          mkdir -p ../server/router/frontend
-          cp -R dist ../server/router/frontend/dist
-          cd ../..
-
-      - name: Build binary
-        run: |
-          cd memos
-          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos.exe && cd artifact && tar -czvf ../memos-windows-amd64.tar.gz * && cd ..
-          GOOS=freebsd GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos && cd artifact && tar -czvf ../memos-freebsd-amd64.tar.gz * && cd ..
-          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos && cd artifact && tar -czvf ../memos-darwin-amd64.tar.gz * && cd ..
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o memos ./bin/memos/main.go && rm -f artifact/* && cp memos artifact/memos && cd artifact && tar -czvf ../memos-linux-amd64.tar.gz * && cd ..
-          cd ..
+          cd memos && bash ../build.sh
 
       # - name: Upload artifact
       #   uses: actions/upload-artifact@main
       #   with:
-      #     name: memos-pre-built
+      #     name: memos-freebsd
       #     path: |
-      #       memos/memos-windows-amd64.tar.gz
-      #       memos/memos-freebsd-amd64.tar.gz
-      #       memos/memos-darwin-amd64.tar.gz
-      #       memos/memos-linux-amd64.tar.gz
+      #       memos/memos
 
       - name: Generate release tag
         id: tag
-        run: echo "release_tag=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')" >> $GITHUB_OUTPUT
+        run: |
+          release_tag=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
+          echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            memos/memos-windows-amd64.tar.gz
-            memos/memos-freebsd-amd64.tar.gz
-            memos/memos-darwin-amd64.tar.gz
-            memos/memos-linux-amd64.tar.gz
+            memos/memos
           token: ${{ github.token }}
           tag_name: ${{ steps.tag.outputs.release_tag }}
