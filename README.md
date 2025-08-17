@@ -156,6 +156,8 @@ Project Link: [https://github.com/LoveDoLove/memos-freebsd](https://github.com/L
 
 This project is proudly supported by [ZMTO](https://www.zmto.com) as part of their open-source VPS program. We extend our sincere gratitude to ZMTO for their valuable resources and commitment to empowering open-source innovation.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Acknowledgments
 
 - [usememos/memos](https://github.com/usememos/memos) - Upstream project
