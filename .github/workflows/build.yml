@@ -20,24 +20,39 @@ jobs:
           wget -q https://download.freebsd.org/releases/amd64/14.3-RELEASE/base.txz
           sudo mkdir /opt/freebsd && sudo tar -xf ./base.txz -C /opt/freebsd
 
-      - name: Build Memos
-        run: |
-          export LATEST_APP=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
-          git clone -b $LATEST_APP https://github.com/usememos/memos
-          cd memos && bash ../build.sh
-
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@main
-      #   with:
-      #     name: memos-freebsd
-      #     path: |
-      #       memos/memos
-
       - name: Generate release tag
         id: tag
         run: |
           release_tag=$(wget -qO- https://api.github.com/repos/usememos/memos/tags | gawk -F '["v]' '/name/{print "v"$5;exit}')
           echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
+
+      - name: Checkout memos at release
+        uses: actions/checkout@v4
+        with:
+          repository: usememos/memos
+          ref: ${{ steps.tag.outputs.release_tag }}
+          path: memos
+
+      - name: Build Memos
+        working-directory: memos
+        run: |
+          # run the top-level build helper (script lives in the parent repo)
+          bash ../build.sh
+
+      - name: Debug build output (brief)
+        run: |
+          echo "--- memos/ tree ---"
+          ls -la memos || true
+          echo "--- memos/bin ---"
+          ls -la memos/bin || true
+          echo "--- memos/cmd ---"
+          ls -la memos/cmd || true
+          echo "--- artifact check ---"
+          if [ -e memos/memos ]; then
+            echo "artifact exists: memos/memos"; ls -la memos/memos || true
+          else
+            echo "artifact memos/memos not found"; true
+          fi
 
       - name: Create release
         uses: softprops/action-gh-release@v2

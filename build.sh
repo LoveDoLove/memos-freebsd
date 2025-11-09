@@ -21,4 +21,17 @@ ldflags="\
 export CGO_ENABLED=1
 export CC="clang --target=x86_64-unknown-freebsd14.1 --sysroot=/opt/freebsd"
 export GOOS=freebsd
-go build -ldflags="$ldflags" -tags=jsoniter -o memos ./bin/memos
+
+# Support multiple upstream layouts: prefer ./bin/memos, fall back to ./cmd/memos, else fail with helpful debug
+if [ -d ./bin/memos ] || [ -f ./bin/memos/main.go ] || [ -f ./bin/memos.go ]; then
+	src_path="./bin/memos"
+elif [ -d ./cmd/memos ] || [ -f ./cmd/memos/main.go ] || [ -f ./cmd/memos.go ]; then
+	src_path="./cmd/memos"
+else
+	echo "ERROR: cannot find memos source in ./bin/memos or ./cmd/memos"
+	echo "Repository layout (top-level):" && ls -la || true
+	exit 1
+fi
+
+echo "Building memos from $src_path"
+go build -ldflags="$ldflags" -tags=jsoniter -o memos "$src_path"
